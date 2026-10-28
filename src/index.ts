@@ -61,6 +61,20 @@ const detectPackageManager = (): string => {
 const run = (command: string, args: string[], cwd: string): boolean =>
   spawnSync(command, args, { cwd, stdio: "ignore" }).status === 0;
 
+const getGitHubToken = (): string | undefined => {
+  const token =
+    process.env.GIGET_AUTH ?? process.env.GH_TOKEN ?? process.env.GITHUB_TOKEN;
+  if (token !== undefined && token !== "") {
+    return token;
+  }
+
+  const result = spawnSync("gh", ["auth", "token"], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "ignore"],
+  });
+  return result.status === 0 ? result.stdout.trim() || undefined : undefined;
+};
+
 const main = async (): Promise<void> => {
   p.intro("create-app");
 
@@ -109,7 +123,11 @@ const main = async (): Promise<void> => {
   const spinner = p.spinner();
 
   spinner.start(`Downloading ${template.repo}`);
-  await downloadTemplate(`gh:${template.repo}`, { dir: target, force: true });
+  await downloadTemplate(`gh:${template.repo}`, {
+    dir: target,
+    force: true,
+    auth: getGitHubToken(),
+  });
   const changed = await replacePlaceholder(target, template.placeholder, name);
   spinner.stop(`Created ${name} (${changed} files updated)`);
 
@@ -132,7 +150,7 @@ const main = async (): Promise<void> => {
   p.note(
     [
       `cd ${name}`,
-      "Create a .env with the keys declared in env.ts",
+      ...(template.setupNote === undefined ? [] : [template.setupNote]),
       `${manager} run dev`,
     ].join("\n"),
     "Next steps",

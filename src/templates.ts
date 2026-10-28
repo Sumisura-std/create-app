@@ -7,6 +7,8 @@ export interface Template {
   repo: string;
   /** Text replaced by the project name in every file of the template. */
   placeholder: string;
+  /** Optional setup guidance shown after the project is created. */
+  setupNote?: string;
 }
 
 /** Add a new template here and publish a new version of the CLI. */
@@ -17,6 +19,7 @@ export const templates: readonly Template[] = [
     hint: "oRPC, Better Auth, Effect, evlog, Ultracite",
     repo: "Sumisura-std/tanstemplate",
     placeholder: "tanstemplate",
+    setupNote: "Create a .env with the keys declared in env.ts",
   },
   {
     id: "astro",

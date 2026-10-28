@@ -61,7 +61,8 @@ var templates = [
     label: "TanStack Start + Void",
     hint: "oRPC, Better Auth, Effect, evlog, Ultracite",
     repo: "Sumisura-std/tanstemplate",
-    placeholder: "tanstemplate"
+    placeholder: "tanstemplate",
+    setupNote: "Create a .env with the keys declared in env.ts"
   },
   {
     id: "astro",
@@ -110,6 +111,17 @@ var detectPackageManager = () => {
   return manager !== undefined && manager !== "" ? manager : "bun";
 };
 var run = (command, args, cwd) => spawnSync(command, args, { cwd, stdio: "ignore" }).status === 0;
+var getGitHubToken = () => {
+  const token = process.env.GIGET_AUTH ?? process.env.GH_TOKEN ?? process.env.GITHUB_TOKEN;
+  if (token !== undefined && token !== "") {
+    return token;
+  }
+  const result = spawnSync("gh", ["auth", "token"], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "ignore"]
+  });
+  return result.status === 0 ? result.stdout.trim() || undefined : undefined;
+};
 var main = async () => {
   p.intro("create-app");
   const name = positionals[0] ?? unwrap(await p.text({
@@ -146,7 +158,11 @@ var main = async () => {
   }
   const spinner2 = p.spinner();
   spinner2.start(`Downloading ${template.repo}`);
-  await downloadTemplate(`gh:${template.repo}`, { dir: target, force: true });
+  await downloadTemplate(`gh:${template.repo}`, {
+    dir: target,
+    force: true,
+    auth: getGitHubToken()
+  });
   const changed = await replacePlaceholder(target, template.placeholder, name);
   spinner2.stop(`Created ${name} (${changed} files updated)`);
   if (!values["no-git"]) {
@@ -161,7 +177,7 @@ var main = async () => {
   }
   p.note([
     `cd ${name}`,
-    "Create a .env with the keys declared in env.ts",
+    ...template.setupNote === undefined ? [] : [template.setupNote],
     `${manager} run dev`
   ].join(`
 `), "Next steps");
