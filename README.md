@@ -12,6 +12,12 @@ bun create @sumisura/app my-app
 
 Options: `-t, --template <id>`, `--no-install`, `--no-git`.
 
+Create a project from the Minimal Astro template:
+
+```sh
+bunx github:Sumisura-std/create-app my-site --template astro
+```
+
 ## Adding a template
 
 1. Make the repo public and mark it as a template repository.

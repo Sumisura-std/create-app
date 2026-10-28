@@ -18,4 +18,11 @@ export const templates: readonly Template[] = [
     repo: "Sumisura-std/tanstemplate",
     placeholder: "tanstemplate",
   },
+  {
+    id: "astro",
+    label: "Minimal Astro",
+    hint: "Astro starter",
+    repo: "Sumisura-std/minimal-astro",
+    placeholder: "minimal-astro",
+  },
 ];
